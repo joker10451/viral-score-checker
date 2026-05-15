@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 const FREE_LIMIT = 3;
 const STORAGE_KEY = "viral-daily-uses";
+const PRO_KEY = "viral-pro-user";
 
 interface DailyUse {
   date: string;
@@ -34,7 +35,18 @@ export function incrementUsage(): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(usage));
 }
 
+export function isProUser(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(PRO_KEY) === "true";
+}
+
+export function activatePro(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PRO_KEY, "true");
+}
+
 export function canAnalyze(): boolean {
+  if (isProUser()) return true;
   return getUsageCount() < FREE_LIMIT;
 }
 
@@ -44,19 +56,61 @@ interface PaywallProps {
 
 export default function Paywall({ onClose }: PaywallProps) {
   const [usageCount, setUsageCount] = useState(0);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
 
   useEffect(() => {
     setUsageCount(getUsageCount());
-  }, []);
+
+    // Проверяем URL на payment=success (возврат после оплаты)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("payment") === "success") {
+      activatePro();
+      // Убираем параметры из URL
+      window.history.replaceState({}, "", window.location.pathname);
+      onClose();
+    }
+  }, [onClose]);
+
+  const handleUpgrade = async () => {
+    if (!email) {
+      setShowEmail(true);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/payment/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, plan: "pro" }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        // Сохраняем order_id для проверки после возврата
+        localStorage.setItem("viral-pending-order", data.orderId);
+        // Редирект на страницу оплаты Prodamus
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Ошибка создания платежа. Попробуйте позже.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#141420] p-8 rounded-2xl border border-white/10 max-w-md w-full animate-score-reveal">
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <h2 className="text-2xl font-bold">Daily Limit Reached</h2>
+          <h2 className="text-2xl font-bold">Лимит исчерпан</h2>
           <p className="text-gray-400 mt-2">
-            You&apos;ve used {usageCount}/{FREE_LIMIT} free analyses today.
+            Использовано {usageCount}/{FREE_LIMIT} бесплатных анализов сегодня.
           </p>
 
           <div className="mt-6 space-y-3">
@@ -66,7 +120,7 @@ export default function Paywall({ onClose }: PaywallProps) {
                 <div className="text-left">
                   <p className="font-semibold text-purple-300">Pro Plan</p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Unlimited analyses + priority features
+                    Безлимитные анализы + приоритетные функции
                   </p>
                 </div>
                 <div className="text-right">
@@ -77,26 +131,45 @@ export default function Paywall({ onClose }: PaywallProps) {
 
               <ul className="mt-4 space-y-2 text-sm text-gray-300 text-left">
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Unlimited daily analyses
+                  <span className="text-green-400">✓</span> Безлимитные анализы
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Advanced scoring metrics
+                  <span className="text-green-400">✓</span> Расширенные метрики
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Export results as PDF
+                  <span className="text-green-400">✓</span> Экспорт в PDF
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Priority support
+                  <span className="text-green-400">✓</span> Приоритетная поддержка
                 </li>
               </ul>
 
-              <button className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition font-semibold cursor-pointer">
-                Upgrade to Pro →
+              {/* Email input */}
+              {showEmail && (
+                <input
+                  type="email"
+                  placeholder="Ваш email для оплаты"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mt-4 p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600 text-sm"
+                />
+              )}
+
+              <button
+                onClick={handleUpgrade}
+                disabled={loading}
+                className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition font-semibold cursor-pointer disabled:opacity-50"
+              >
+                {loading
+                  ? "Создаём платёж..."
+                  : showEmail
+                    ? "Оплатить ₽490 →"
+                    : "Перейти к оплате →"}
               </button>
             </div>
 
             <p className="text-xs text-gray-500">
-              Or come back tomorrow for 3 more free analyses
+              Или вернитесь завтра — ещё 3 бесплатных анализа
             </p>
           </div>
 
@@ -104,7 +177,7 @@ export default function Paywall({ onClose }: PaywallProps) {
             onClick={onClose}
             className="mt-4 text-sm text-gray-500 hover:text-gray-300 transition cursor-pointer"
           >
-            Maybe later
+            Позже
           </button>
         </div>
       </div>

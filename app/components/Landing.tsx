@@ -160,6 +160,11 @@ export function Pricing() {
               ))}
             </ul>
             <button
+              onClick={() => {
+                if (plan.highlighted) {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className={`w-full mt-5 p-2.5 rounded-lg font-medium text-sm transition cursor-pointer ${
                 plan.highlighted
                   ? "bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90"
