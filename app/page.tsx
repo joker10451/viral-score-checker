@@ -16,7 +16,7 @@ import { useLocale } from "@/lib/locale-context";
 type Tab = "analyze" | "compare";
 
 export default function Page() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [title, setTitle] = useState("");
   const [hook, setHook] = useState("");
   const [thumbnail, setThumbnail] = useState("");
@@ -42,7 +42,7 @@ export default function Page() {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, hook, thumbnail, platform }),
+        body: JSON.stringify({ title, hook, thumbnail, platform, locale }),
       });
 
       const data: ScoringResult = await res.json();

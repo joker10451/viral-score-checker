@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeContent, ScoringInput } from "@/lib/scoring";
-import { getAIAnalysis } from "@/lib/ai";
+import { getAIAnalysis, AILocale } from "@/lib/ai";
+
+interface RequestBody extends ScoringInput {
+  locale?: AILocale;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ScoringInput = await request.json();
+    const body: RequestBody = await request.json();
 
     if (!body.title && !body.hook) {
       return NextResponse.json(
@@ -13,7 +17,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Rule-based scoring (always runs — instant)
     const result = analyzeContent({
       title: body.title || "",
       hook: body.hook || "",
@@ -21,24 +24,29 @@ export async function POST(request: NextRequest) {
       platform: body.platform || "youtube",
     });
 
-    // AI enhancement (runs if GROQ_API_KEY is set)
     const aiResult = await getAIAnalysis(
       body.title || "",
       body.hook || "",
       result.viralScore,
       result.ctrScore,
       result.retentionScore,
-      result.engagementScore
+      result.engagementScore,
+      body.locale || "en"
     );
 
     if (aiResult) {
-      // Merge AI results with rule-based scores
       return NextResponse.json({
         ...result,
         explanation: aiResult.explanation || result.explanation,
         improvements: {
-          titles: aiResult.titles.length > 0 ? aiResult.titles : result.improvements.titles,
-          hooks: aiResult.hooks.length > 0 ? aiResult.hooks : result.improvements.hooks,
+          titles:
+            aiResult.titles.length > 0
+              ? aiResult.titles
+              : result.improvements.titles,
+          hooks:
+            aiResult.hooks.length > 0
+              ? aiResult.hooks
+              : result.improvements.hooks,
         },
         tips: aiResult.tips,
         aiPowered: true,

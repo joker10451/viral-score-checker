@@ -3,12 +3,12 @@
  *
  * Бесплатно: 14,400 req/day, 30 req/min
  * Модель: llama-3.3-70b-versatile
- *
- * Получи API ключ: https://console.groq.com → API Keys → Create
  */
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+export type AILocale = "en" | "ru";
 
 interface AIAnalysis {
   explanation: string;
@@ -17,21 +17,44 @@ interface AIAnalysis {
   tips: string[];
 }
 
-export async function getAIAnalysis(
+function getPrompt(
   title: string,
   hook: string,
   viralScore: number,
   ctrScore: number,
   retentionScore: number,
-  engagementScore: number
-): Promise<AIAnalysis | null> {
-  const apiKey = process.env.GROQ_API_KEY;
+  engagementScore: number,
+  locale: AILocale
+): { system: string; user: string } {
+  if (locale === "ru") {
+    return {
+      system:
+        "Ты эксперт по вирусному контенту. Отвечай ТОЛЬКО валидным JSON, без markdown и без обёртки. Все строки на русском языке.",
+      user: `Проанализируй идею для YouTube/TikTok видео.
 
-  if (!apiKey) {
-    return null; // Fallback to rule-based if no API key
+Заголовок: "${title}"
+Хук: "${hook}"
+
+Оценки (0-100):
+- Виральный скор: ${viralScore}
+- CTR (кликабельность): ${ctrScore}
+- Удержание: ${retentionScore}
+- Вовлечённость: ${engagementScore}
+
+Ответь ТОЛЬКО в JSON формате (без markdown):
+{
+  "explanation": "2-3 предложения почему этот контент станет/не станет вирусным. Конкретно укажи что работает, а что нет.",
+  "titles": ["3 улучшенных варианта заголовка"],
+  "hooks": ["3 улучшенных варианта хука для удержания зрителя"],
+  "tips": ["3 конкретных совета как улучшить контент"]
+}`,
+    };
   }
 
-  const prompt = `You are a viral content expert. Analyze this YouTube/TikTok content idea and provide actionable feedback.
+  return {
+    system:
+      "You are a viral content strategist. Always respond with valid JSON only. No markdown formatting.",
+    user: `You are a viral content expert. Analyze this YouTube/TikTok content idea and provide actionable feedback.
 
 Title: "${title}"
 Hook: "${hook}"
@@ -48,7 +71,32 @@ Respond in JSON format ONLY (no markdown, no code blocks):
   "titles": ["3 improved title alternatives that would score higher"],
   "hooks": ["3 improved hook alternatives that would retain viewers better"],
   "tips": ["3 specific actionable tips to improve this content"]
-}`;
+}`,
+  };
+}
+
+export async function getAIAnalysis(
+  title: string,
+  hook: string,
+  viralScore: number,
+  ctrScore: number,
+  retentionScore: number,
+  engagementScore: number,
+  locale: AILocale = "en"
+): Promise<AIAnalysis | null> {
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) return null;
+
+  const { system, user } = getPrompt(
+    title,
+    hook,
+    viralScore,
+    ctrScore,
+    retentionScore,
+    engagementScore,
+    locale
+  );
 
   try {
     const response = await fetch(GROQ_API_URL, {
@@ -60,15 +108,12 @@ Respond in JSON format ONLY (no markdown, no code blocks):
       body: JSON.stringify({
         model: GROQ_MODEL,
         messages: [
-          {
-            role: "system",
-            content:
-              "You are a viral content strategist. Always respond with valid JSON only. No markdown formatting.",
-          },
-          { role: "user", content: prompt },
+          { role: "system", content: system },
+          { role: "user", content: user },
         ],
         temperature: 0.7,
-        max_tokens: 500,
+        max_tokens: 600,
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -82,7 +127,6 @@ Respond in JSON format ONLY (no markdown, no code blocks):
 
     if (!content) return null;
 
-    // Parse JSON from response
     const parsed = JSON.parse(content);
 
     return {
