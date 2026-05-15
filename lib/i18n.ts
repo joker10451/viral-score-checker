@@ -121,21 +121,21 @@ export const translations = {
 
     // FAQ
     faqTitle: "❓ FAQ",
-    faqQ1: "Is this actually AI?",
+    faqQ1: "How does it work?",
     faqA1:
-      "Yes — when GROQ_API_KEY is configured, we use Llama 3.3 70B for explanations and improvements. The scoring engine itself is rule-based for instant results.",
+      "We analyze your title and hook against patterns from 1000+ viral videos and instantly score your content's viral potential. AI then suggests specific improvements to help you go viral.",
     faqQ2: "How accurate is the score?",
     faqA2:
-      "The scoring system is based on patterns from viral content research. It's a directional tool — use it to compare ideas and identify weak points, not as a guarantee of performance.",
+      "The score reflects how well your content matches proven viral patterns. It's a guide for finding weak spots and comparing ideas — not a guarantee, but a strong indicator.",
     faqQ3: "What platforms does it support?",
     faqA3:
-      "YouTube, TikTok, and Instagram Reels. Each platform has different scoring weights — TikTok prioritizes hooks, YouTube prioritizes thumbnails and titles.",
-    faqQ4: "Is my data stored anywhere?",
+      "YouTube, TikTok, and Instagram Reels. Each platform has its own scoring weights — TikTok focuses on hooks, YouTube on titles and thumbnails.",
+    faqQ4: "Is my data stored?",
     faqA4:
-      "No. Everything runs in your browser. Your titles, hooks, and scores are stored locally on your device only.",
-    faqQ5: "Can I use this for free?",
+      "No. Everything runs in your browser. Your titles, hooks, and scores never leave your device.",
+    faqQ5: "Can I use it for free?",
     faqA5:
-      "Yes! You get 3 free analyses per day. Pro users get unlimited access plus advanced features.",
+      "Yes — 3 free analyses per day. Pro unlocks unlimited analyses and advanced features.",
 
     // Social proof
     trustedBy: "Trusted by 10,000+ creators worldwide",
@@ -144,7 +144,7 @@ export const translations = {
     privacy: "Privacy Policy",
     terms: "Terms of Service",
     contact: "Contact",
-    builtFor: "Built for creators • Not just AI — a viral prediction simulator",
+    builtFor: "Built for creators • Predict your viral potential",
   },
   ru: {
     badge: "Симулятор предсказания вирусности",
@@ -252,28 +252,28 @@ export const translations = {
     testimonialsTitle: "💬 Что говорят создатели",
 
     faqTitle: "❓ Частые вопросы",
-    faqQ1: "Это реально AI?",
+    faqQ1: "Как это работает?",
     faqA1:
-      "Да — когда настроен GROQ_API_KEY, мы используем Llama 3.3 70B для объяснений и улучшений. Сама система оценки — на правилах для мгновенных результатов.",
+      "Анализируем твой заголовок и хук по паттернам 1000+ вирусных видео и мгновенно оцениваем потенциал. AI подсказывает конкретные улучшения чтобы залететь.",
     faqQ2: "Насколько точен скор?",
     faqA2:
-      "Скоринг построен на паттернах вирусного контента. Это направляющий инструмент — используй для сравнения идей и поиска слабых мест.",
+      "Скор показывает насколько твой контент соответствует проверенным вирусным паттернам. Это компас для поиска слабых мест и сравнения идей — не гарантия, но сильный индикатор.",
     faqQ3: "Какие платформы поддерживаются?",
     faqA3:
-      "YouTube, TikTok и Instagram Reels. У каждой платформы свои веса — TikTok ставит на хук, YouTube на превью и заголовок.",
+      "YouTube, TikTok и Instagram Reels. У каждой платформы свои веса — TikTok делает акцент на хуке, YouTube на заголовке и превью.",
     faqQ4: "Где хранятся мои данные?",
     faqA4:
-      "Нигде. Всё работает в браузере. Заголовки, хуки и скоры сохраняются только локально на твоём устройстве.",
+      "Нигде. Всё работает в браузере. Заголовки, хуки и скоры остаются только на твоём устройстве.",
     faqQ5: "Можно использовать бесплатно?",
     faqA5:
-      "Да! 3 бесплатных анализа в день. Pro — безлимит и расширенные функции.",
+      "Да — 3 бесплатных анализа в день. Pro даёт безлимит и расширенные функции.",
 
     trustedBy: "Используют 10 000+ создателей по всему миру",
 
     privacy: "Политика конфиденциальности",
     terms: "Условия использования",
     contact: "Контакты",
-    builtFor: "Сделано для создателей • Симулятор виральности",
+    builtFor: "Сделано для создателей • Узнай свой вирусный потенциал",
   },
 } as const;
 
