@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LocaleProvider } from "@/lib/locale-context";
+import LocaleSwitcher from "./components/LocaleSwitcher";
 
 export const metadata: Metadata = {
   title: "Viral Score Checker — Predict Your Viral Potential",
@@ -19,7 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <LocaleProvider>
+          <LocaleSwitcher />
+          {children}
+        </LocaleProvider>
+      </body>
     </html>
   );
 }

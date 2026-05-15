@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/locale-context";
 
 interface HistoryEntry {
   title: string;
@@ -17,7 +18,6 @@ export function addToHistory(title: string, hook: string, score: number) {
   const existing = getHistory();
   existing.unshift({ title, hook, score, timestamp: Date.now() });
 
-  // Keep last 10
   const trimmed = existing.slice(0, 10);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
 }
@@ -38,6 +38,7 @@ interface HistoryProps {
 }
 
 export default function History({ onSelect }: HistoryProps) {
+  const { t } = useLocale();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
@@ -49,17 +50,17 @@ export default function History({ onSelect }: HistoryProps) {
   const timeAgo = (ts: number) => {
     const diff = Date.now() - ts;
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just now";
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t("justNow");
+    if (mins < 60) return `${mins}${t("minAgo")}`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (hours < 24) return `${hours}${t("hAgo")}`;
+    return `${Math.floor(hours / 24)}${t("dAgo")}`;
   };
 
   return (
     <div className="w-full max-w-2xl mt-6 bg-[#141420] p-5 rounded-2xl border border-white/10">
       <h3 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">
-        🕐 Recent Analyses
+        {t("historyTitle")}
       </h3>
       <div className="space-y-2">
         {entries.slice(0, 5).map((entry, i) => (
@@ -70,7 +71,9 @@ export default function History({ onSelect }: HistoryProps) {
           >
             <div className="flex-1 min-w-0">
               <p className="text-sm text-gray-200 truncate">{entry.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{timeAgo(entry.timestamp)}</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {timeAgo(entry.timestamp)}
+              </p>
             </div>
             <span
               className={`ml-3 font-bold text-sm ${

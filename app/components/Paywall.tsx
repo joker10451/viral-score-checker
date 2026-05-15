@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/locale-context";
 
 const FREE_LIMIT = 3;
 const STORAGE_KEY = "viral-daily-uses";
@@ -55,6 +56,7 @@ interface PaywallProps {
 }
 
 export default function Paywall({ onClose }: PaywallProps) {
+  const { t } = useLocale();
   const [usageCount, setUsageCount] = useState(0);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,11 +65,9 @@ export default function Paywall({ onClose }: PaywallProps) {
   useEffect(() => {
     setUsageCount(getUsageCount());
 
-    // Проверяем URL на payment=success (возврат после оплаты)
     const params = new URLSearchParams(window.location.search);
     if (params.get("payment") === "success") {
       activatePro();
-      // Убираем параметры из URL
       window.history.replaceState({}, "", window.location.pathname);
       onClose();
     }
@@ -90,65 +90,65 @@ export default function Paywall({ onClose }: PaywallProps) {
       const data = await res.json();
 
       if (data.url) {
-        // Сохраняем order_id для проверки после возврата
         localStorage.setItem("viral-pending-order", data.orderId);
-        // Редирект на страницу оплаты Prodamus
         window.location.href = data.url;
       }
     } catch (err) {
       console.error("Payment error:", err);
-      alert("Ошибка создания платежа. Попробуйте позже.");
+      alert(t("paymentError"));
     } finally {
       setLoading(false);
     }
   };
+
+  const usedText = t("usedAnalyses")
+    .replace("{used}", String(usageCount))
+    .replace("{total}", String(FREE_LIMIT));
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-[#141420] p-8 rounded-2xl border border-white/10 max-w-md w-full animate-score-reveal">
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <h2 className="text-2xl font-bold">Лимит исчерпан</h2>
-          <p className="text-gray-400 mt-2">
-            Использовано {usageCount}/{FREE_LIMIT} бесплатных анализов сегодня.
-          </p>
+          <h2 className="text-2xl font-bold">{t("limitReached")}</h2>
+          <p className="text-gray-400 mt-2">{usedText}</p>
 
           <div className="mt-6 space-y-3">
-            {/* Pro Plan */}
             <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 p-5 rounded-xl border border-purple-500/30">
               <div className="flex items-center justify-between">
                 <div className="text-left">
-                  <p className="font-semibold text-purple-300">Pro Plan</p>
+                  <p className="font-semibold text-purple-300">
+                    {t("proPlan")}
+                  </p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Безлимитные анализы + приоритетные функции
+                    {t("proSubtitle")}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-bold text-white">₽490</p>
-                  <p className="text-xs text-gray-500">/мес</p>
+                  <p className="text-xs text-gray-500">{t("perMonth")}</p>
                 </div>
               </div>
 
               <ul className="mt-4 space-y-2 text-sm text-gray-300 text-left">
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Безлимитные анализы
+                  <span className="text-green-400">✓</span> {t("proFeature1")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Расширенные метрики
+                  <span className="text-green-400">✓</span> {t("proFeature2")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Экспорт в PDF
+                  <span className="text-green-400">✓</span> {t("proFeature3")}
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-400">✓</span> Приоритетная поддержка
+                  <span className="text-green-400">✓</span> {t("proFeature4")}
                 </li>
               </ul>
 
-              {/* Email input */}
               {showEmail && (
                 <input
                   type="email"
-                  placeholder="Ваш email для оплаты"
+                  placeholder={t("paymentEmail")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full mt-4 p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600 text-sm"
@@ -161,23 +161,21 @@ export default function Paywall({ onClose }: PaywallProps) {
                 className="w-full mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition font-semibold cursor-pointer disabled:opacity-50"
               >
                 {loading
-                  ? "Создаём платёж..."
+                  ? t("creatingPayment")
                   : showEmail
-                    ? "Оплатить ₽490 →"
-                    : "Перейти к оплате →"}
+                    ? t("payNow")
+                    : t("upgradeNow")}
               </button>
             </div>
 
-            <p className="text-xs text-gray-500">
-              Или вернитесь завтра — ещё 3 бесплатных анализа
-            </p>
+            <p className="text-xs text-gray-500">{t("comeBackTomorrow")}</p>
           </div>
 
           <button
             onClick={onClose}
             className="mt-4 text-sm text-gray-500 hover:text-gray-300 transition cursor-pointer"
           >
-            Позже
+            {t("maybeLater")}
           </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/locale-context";
 
 interface LeaderboardEntry {
   title: string;
@@ -16,7 +17,6 @@ export function addToLeaderboard(title: string, score: number) {
   const existing = getLeaderboard();
   existing.push({ title, score, timestamp: Date.now() });
 
-  // Keep top 20, sorted by score
   existing.sort((a, b) => b.score - a.score);
   const top = existing.slice(0, 20);
 
@@ -35,6 +35,7 @@ export function getLeaderboard(): LeaderboardEntry[] {
 }
 
 export default function Leaderboard() {
+  const { t } = useLocale();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function Leaderboard() {
   return (
     <div className="w-full max-w-2xl mt-10 bg-[#141420] p-6 rounded-2xl border border-white/10">
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        🏆 Top Viral Scores
+        {t("leaderboardTitle")}
       </h2>
       <div className="space-y-2">
         {entries.slice(0, 10).map((entry, i) => (

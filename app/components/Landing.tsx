@@ -1,118 +1,67 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 const testimonials = [
   {
     name: "Alex K.",
-    role: "YouTube Creator, 500K subs",
-    text: "I tested 3 title ideas before posting. The one with the highest score got 2x more views than my average.",
+    roleEn: "YouTube Creator, 500K subs",
+    roleRu: "YouTube создатель, 500K подписчиков",
+    textEn:
+      "I tested 3 title ideas before posting. The one with the highest score got 2x more views than my average.",
+    textRu:
+      "Протестировал 3 заголовка перед публикацией. Тот что с самым высоким скором набрал в 2 раза больше просмотров.",
     score: 91,
   },
   {
     name: "Maria S.",
-    role: "TikTok Creator",
-    text: "This tool helped me understand why some hooks work and others don't. My retention went up 40%.",
+    roleEn: "TikTok Creator",
+    roleRu: "TikTok создатель",
+    textEn:
+      "This tool helped me understand why some hooks work and others don't. My retention went up 40%.",
+    textRu:
+      "Этот инструмент помог понять почему одни хуки работают, а другие нет. Удержание выросло на 40%.",
     score: 84,
   },
   {
     name: "Jake R.",
-    role: "Content Agency",
-    text: "We use this for every client video now. Quick, simple, and surprisingly accurate for a rule-based system.",
+    roleEn: "Content Agency",
+    roleRu: "Контент-агентство",
+    textEn:
+      "We use this for every client video now. Quick, simple, and surprisingly accurate.",
+    textRu:
+      "Используем для каждого клиентского видео. Быстро, просто и удивительно точно.",
     score: 78,
   },
 ];
 
-const faqs = [
-  {
-    q: "Is this actually AI?",
-    a: "No. This is a rule-based viral prediction simulator. It uses proven content patterns from top-performing videos to score your ideas. No AI APIs, no hallucinations — just data-driven rules.",
-  },
-  {
-    q: "How accurate is the score?",
-    a: "The scoring system is based on patterns from viral content research. It's a directional tool — use it to compare ideas and identify weak points, not as a guarantee of performance.",
-  },
-  {
-    q: "What platforms does it support?",
-    a: "YouTube, TikTok, and Instagram Reels. Each platform has different scoring weights — TikTok prioritizes hooks, YouTube prioritizes thumbnails and titles.",
-  },
-  {
-    q: "Is my data stored anywhere?",
-    a: "No. Everything runs in your browser. Your titles, hooks, and scores are stored locally on your device only. Nothing is sent to any server beyond the scoring calculation.",
-  },
-  {
-    q: "Can I use this for free?",
-    a: "Yes! You get 3 free analyses per day. Pro users get unlimited access plus advanced features.",
-  },
-];
-
-const pricingPlans = [
-  {
-    name: "Free",
-    price: "₽0",
-    period: "навсегда",
-    features: [
-      "3 analyses per day",
-      "Basic scoring",
-      "Title & hook improvements",
-      "Compare mode",
-    ],
-    cta: "Current Plan",
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "₽490",
-    period: "/мес",
-    features: [
-      "Unlimited analyses",
-      "Advanced metrics",
-      "Export as PDF",
-      "Priority support",
-      "Trend reports",
-      "API access",
-    ],
-    cta: "Upgrade Now",
-    highlighted: true,
-  },
-  {
-    name: "Team",
-    price: "₽1490",
-    period: "/мес",
-    features: [
-      "Everything in Pro",
-      "5 team members",
-      "Shared leaderboard",
-      "Brand presets",
-      "Bulk analysis",
-      "Dedicated support",
-    ],
-    cta: "Contact Us",
-    highlighted: false,
-  },
-];
-
 export function Testimonials() {
+  const { t, locale } = useLocale();
+
   return (
     <div className="w-full max-w-4xl mt-16">
       <h2 className="text-2xl font-bold text-center mb-8">
-        💬 What Creators Say
+        {t("testimonialsTitle")}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {testimonials.map((t, i) => (
+        {testimonials.map((tst, i) => (
           <div
             key={i}
             className="bg-[#141420] p-5 rounded-2xl border border-white/10"
           >
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="font-medium text-sm">{t.name}</p>
-                <p className="text-xs text-gray-500">{t.role}</p>
+                <p className="font-medium text-sm">{tst.name}</p>
+                <p className="text-xs text-gray-500">
+                  {locale === "ru" ? tst.roleRu : tst.roleEn}
+                </p>
               </div>
               <span className="text-sm font-bold text-purple-400">
-                {t.score}/100
+                {tst.score}/100
               </span>
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">
-              &quot;{t.text}&quot;
+              &quot;{locale === "ru" ? tst.textRu : tst.textEn}&quot;
             </p>
           </div>
         ))}
@@ -122,14 +71,48 @@ export function Testimonials() {
 }
 
 export function Pricing() {
+  const { t } = useLocale();
+
+  const plans = [
+    {
+      name: t("free"),
+      price: "₽0",
+      period: t("forever"),
+      featureKeys: ["proFeature1", "proFeature2", "proFeature3"] as const,
+      features: ["3 / day", "Basic scoring", "Compare mode"],
+      cta: t("currentPlan"),
+      highlighted: false,
+    },
+    {
+      name: t("pro"),
+      price: "₽490",
+      period: t("perMonth"),
+      featureKeys: ["proFeature1", "proFeature2", "proFeature3", "proFeature4"] as const,
+      features: [],
+      cta: t("upgradeNow"),
+      highlighted: true,
+    },
+    {
+      name: t("team"),
+      price: "₽1490",
+      period: t("perMonth"),
+      featureKeys: [] as const,
+      features: ["Pro +", "5 users", "Bulk analysis"],
+      cta: t("contactUs"),
+      highlighted: false,
+    },
+  ];
+
   return (
     <div className="w-full max-w-4xl mt-16">
-      <h2 className="text-2xl font-bold text-center mb-2">💎 Pricing</h2>
+      <h2 className="text-2xl font-bold text-center mb-2">
+        {t("pricingTitle")}
+      </h2>
       <p className="text-gray-400 text-center text-sm mb-8">
-        Start free. Upgrade when you need more.
+        {t("pricingSubtitle")}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {pricingPlans.map((plan, i) => (
+        {plans.map((plan, i) => (
           <div
             key={i}
             className={`p-6 rounded-2xl border ${
@@ -140,7 +123,7 @@ export function Pricing() {
           >
             {plan.highlighted && (
               <div className="text-xs font-medium text-purple-300 mb-2">
-                ⭐ Most Popular
+                {t("mostPopular")}
               </div>
             )}
             <h3 className="text-lg font-bold">{plan.name}</h3>
@@ -149,9 +132,18 @@ export function Pricing() {
               <span className="text-gray-500 text-sm">{plan.period}</span>
             </div>
             <ul className="mt-4 space-y-2">
-              {plan.features.map((f, j) => (
+              {plan.featureKeys.map((key, j) => (
                 <li
                   key={j}
+                  className="flex items-center gap-2 text-sm text-gray-300"
+                >
+                  <span className="text-green-400 text-xs">✓</span>
+                  {t(key)}
+                </li>
+              ))}
+              {plan.features.map((f, j) => (
+                <li
+                  key={`extra-${j}`}
                   className="flex items-center gap-2 text-sm text-gray-300"
                 >
                   <span className="text-green-400 text-xs">✓</span>
@@ -181,9 +173,19 @@ export function Pricing() {
 }
 
 export function FAQ() {
+  const { t } = useLocale();
+
+  const faqs = [
+    { q: t("faqQ1"), a: t("faqA1") },
+    { q: t("faqQ2"), a: t("faqA2") },
+    { q: t("faqQ3"), a: t("faqA3") },
+    { q: t("faqQ4"), a: t("faqA4") },
+    { q: t("faqQ5"), a: t("faqA5") },
+  ];
+
   return (
     <div className="w-full max-w-2xl mt-16">
-      <h2 className="text-2xl font-bold text-center mb-8">❓ FAQ</h2>
+      <h2 className="text-2xl font-bold text-center mb-8">{t("faqTitle")}</h2>
       <div className="space-y-4">
         {faqs.map((faq, i) => (
           <details

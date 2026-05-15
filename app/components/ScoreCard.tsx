@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 interface ScoreCardProps {
   viralScore: number;
   ctrScore: number;
@@ -85,18 +87,22 @@ export default function ScoreCard({
   engagementScore,
   explanation,
 }: ScoreCardProps) {
+  const { t } = useLocale();
+
   const shockMessage =
     viralScore >= 80
-      ? "🔥 Top 10% viral potential detected!"
+      ? t("shockTop")
       : viralScore >= 60
-        ? "⚡ This could double your views with small tweaks"
+        ? t("shockGood")
         : viralScore >= 40
-          ? "📈 Solid base — needs stronger hooks"
-          : "⚠️ High risk of low performance. Rework needed.";
+          ? t("shockMedium")
+          : t("shockLow");
 
   return (
     <div className="bg-[#141420] p-6 rounded-2xl border border-white/10 animate-pulse-glow">
-      <h2 className="text-xl font-semibold text-center mb-4">Viral Score</h2>
+      <h2 className="text-xl font-semibold text-center mb-4">
+        {t("viralScore")}
+      </h2>
 
       <ScoreCircle score={viralScore} />
 
@@ -106,19 +112,19 @@ export default function ScoreCard({
 
       <div className="mt-6 space-y-4">
         <ScoreBar
-          label="CTR (Click-Through Rate)"
+          label={t("ctr")}
           value={ctrScore}
           color="bg-blue-500"
           delay="delay-100"
         />
         <ScoreBar
-          label="Retention"
+          label={t("retention")}
           value={retentionScore}
           color="bg-purple-500"
           delay="delay-200"
         />
         <ScoreBar
-          label="Engagement"
+          label={t("engagement")}
           value={engagementScore}
           color="bg-pink-500"
           delay="delay-300"

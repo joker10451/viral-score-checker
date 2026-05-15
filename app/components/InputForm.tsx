@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 interface InputFormProps {
   title: string;
   setTitle: (v: string) => void;
@@ -21,34 +23,36 @@ export default function InputForm({
   onAnalyze,
   loading,
 }: InputFormProps) {
+  const { t } = useLocale();
+
   return (
     <div className="w-full max-w-2xl mt-10 bg-[#141420] p-6 rounded-2xl shadow-xl border border-white/10">
-      <label className="text-sm text-gray-400 font-medium">Video Title</label>
+      <label className="text-sm text-gray-400 font-medium">{t("videoTitle")}</label>
       <input
         className="w-full mt-2 p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600"
-        placeholder="e.g. Why This Changed Everything..."
+        placeholder={t("titlePlaceholder")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <label className="text-sm text-gray-400 font-medium mt-4 block">
-        Hook (first 1–3 seconds)
+        {t("hookLabel")}
       </label>
       <textarea
         className="w-full mt-2 p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600 resize-none"
         rows={3}
-        placeholder="What viewers hear/see in the first seconds..."
+        placeholder={t("hookPlaceholder")}
         value={hook}
         onChange={(e) => setHook(e.target.value)}
       />
 
       <label className="text-sm text-gray-400 font-medium mt-4 block">
-        Thumbnail Description{" "}
-        <span className="text-gray-600">(optional)</span>
+        {t("thumbnailLabel")}{" "}
+        <span className="text-gray-600">{t("optional")}</span>
       </label>
       <input
         className="w-full mt-2 p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600"
-        placeholder="e.g. Face with shocked expression, red bold text overlay"
+        placeholder={t("thumbnailPlaceholder")}
         value={thumbnail}
         onChange={(e) => setThumbnail(e.target.value)}
       />
@@ -79,10 +83,10 @@ export default function InputForm({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            Analyzing...
+            {t("analyzing")}
           </span>
         ) : (
-          "🚀 Analyze Viral Score"
+          t("analyzeBtn")
         )}
       </button>
     </div>

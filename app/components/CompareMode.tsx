@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { analyzeContent, ScoringResult, Platform } from "@/lib/scoring";
+import { useLocale } from "@/lib/locale-context";
 
 interface CompareModeProps {
   platform: Platform;
@@ -65,6 +66,7 @@ function CompareBar({
 }
 
 export default function CompareMode({ platform }: CompareModeProps) {
+  const { t } = useLocale();
   const [titleA, setTitleA] = useState("");
   const [hookA, setHookA] = useState("");
   const [titleB, setTitleB] = useState("");
@@ -90,45 +92,48 @@ export default function CompareMode({ platform }: CompareModeProps) {
           : "TIE"
       : null;
 
+  const winnerText =
+    winner === "A" ? t("winnerA") : winner === "B" ? t("winnerB") : t("tie");
+
   return (
     <div className="w-full max-w-4xl mt-10">
       <div className="bg-[#141420] p-6 rounded-2xl border border-white/10">
         <h2 className="text-xl font-semibold mb-6 text-center">
-          ⚔️ Compare Two Ideas
+          {t("compareTitle")}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Idea A */}
           <div className="space-y-3">
-            <div className="text-sm font-medium text-purple-400">Idea A</div>
+            <div className="text-sm font-medium text-purple-400">
+              {t("ideaA")}
+            </div>
             <input
               className="w-full p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600 text-sm"
-              placeholder="Title A..."
+              placeholder={t("titlePlaceholderA")}
               value={titleA}
               onChange={(e) => setTitleA(e.target.value)}
             />
             <textarea
               className="w-full p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-purple-500 transition text-white placeholder-gray-600 text-sm resize-none"
               rows={2}
-              placeholder="Hook A..."
+              placeholder={t("hookPlaceholderA")}
               value={hookA}
               onChange={(e) => setHookA(e.target.value)}
             />
           </div>
 
-          {/* Idea B */}
           <div className="space-y-3">
-            <div className="text-sm font-medium text-blue-400">Idea B</div>
+            <div className="text-sm font-medium text-blue-400">{t("ideaB")}</div>
             <input
               className="w-full p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-blue-500 transition text-white placeholder-gray-600 text-sm"
-              placeholder="Title B..."
+              placeholder={t("titlePlaceholderB")}
               value={titleB}
               onChange={(e) => setTitleB(e.target.value)}
             />
             <textarea
               className="w-full p-3 rounded-lg bg-[#0b0b12] border border-white/10 focus:outline-none focus:border-blue-500 transition text-white placeholder-gray-600 text-sm resize-none"
               rows={2}
-              placeholder="Hook B..."
+              placeholder={t("hookPlaceholderB")}
               value={hookB}
               onChange={(e) => setHookB(e.target.value)}
             />
@@ -140,13 +145,11 @@ export default function CompareMode({ platform }: CompareModeProps) {
           disabled={!titleA && !hookA && !titleB && !hookB}
           className="w-full mt-5 p-3 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 hover:opacity-90 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          ⚡ Compare
+          {t("compareBtn")}
         </button>
 
-        {/* Results */}
         {resultA && resultB && (
           <div className="mt-6 space-y-6 animate-fade-up">
-            {/* Winner Banner */}
             {winner && (
               <div
                 className={`text-center p-4 rounded-xl ${
@@ -157,32 +160,26 @@ export default function CompareMode({ platform }: CompareModeProps) {
                       : "bg-white/5 border border-white/10"
                 }`}
               >
-                <span className="text-lg font-bold">
-                  {winner === "TIE"
-                    ? "🤝 It's a tie!"
-                    : `🏆 Idea ${winner} wins!`}
-                </span>
+                <span className="text-lg font-bold">{winnerText}</span>
                 <span className="text-sm text-gray-400 ml-2">
-                  ({Math.abs(resultA.viralScore - resultB.viralScore)} points
-                  difference)
+                  ({Math.abs(resultA.viralScore - resultB.viralScore)}{" "}
+                  {t("pointsDiff")})
                 </span>
               </div>
             )}
 
-            {/* Score Comparison */}
             <div className="grid grid-cols-3 items-center gap-4">
               <div className="text-center">
-                <div className="text-xs text-purple-400 mb-2">Idea A</div>
+                <div className="text-xs text-purple-400 mb-2">{t("ideaA")}</div>
                 <MiniScoreCircle score={resultA.viralScore} />
               </div>
               <div className="text-center text-2xl text-gray-600">VS</div>
               <div className="text-center">
-                <div className="text-xs text-blue-400 mb-2">Idea B</div>
+                <div className="text-xs text-blue-400 mb-2">{t("ideaB")}</div>
                 <MiniScoreCircle score={resultB.viralScore} />
               </div>
             </div>
 
-            {/* Metric Bars */}
             <div className="space-y-3">
               <CompareBar
                 label="CTR"
@@ -191,13 +188,13 @@ export default function CompareMode({ platform }: CompareModeProps) {
                 color="bg-blue-500"
               />
               <CompareBar
-                label="Retention"
+                label={t("retention")}
                 valueA={resultA.retentionScore}
                 valueB={resultB.retentionScore}
                 color="bg-purple-500"
               />
               <CompareBar
-                label="Engagement"
+                label={t("engagement")}
                 valueA={resultA.engagementScore}
                 valueB={resultB.engagementScore}
                 color="bg-pink-500"

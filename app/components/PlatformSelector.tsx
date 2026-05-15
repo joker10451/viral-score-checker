@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/lib/locale-context";
+
 export type Platform = "youtube" | "tiktok" | "reels";
 
 interface PlatformSelectorProps {
@@ -7,16 +9,23 @@ interface PlatformSelectorProps {
   setPlatform: (p: Platform) => void;
 }
 
-const platforms: { id: Platform; label: string; icon: string }[] = [
-  { id: "youtube", label: "YouTube", icon: "🎬" },
-  { id: "tiktok", label: "TikTok", icon: "📱" },
-  { id: "reels", label: "Reels", icon: "📸" },
-];
+const platformIcons: Record<Platform, string> = {
+  youtube: "🎬",
+  tiktok: "📱",
+  reels: "📸",
+};
 
 export default function PlatformSelector({
   platform,
   setPlatform,
 }: PlatformSelectorProps) {
+  const { t } = useLocale();
+  const platforms: { id: Platform; labelKey: "youtube" | "tiktok" | "reels" }[] = [
+    { id: "youtube", labelKey: "youtube" },
+    { id: "tiktok", labelKey: "tiktok" },
+    { id: "reels", labelKey: "reels" },
+  ];
+
   return (
     <div className="flex items-center gap-2 w-full max-w-2xl mt-6">
       {platforms.map((p) => (
@@ -29,8 +38,8 @@ export default function PlatformSelector({
               : "bg-[#141420] border-white/10 text-gray-400 hover:border-white/20"
           }`}
         >
-          <span>{p.icon}</span>
-          <span>{p.label}</span>
+          <span>{platformIcons[p.id]}</span>
+          <span>{t(p.labelKey)}</span>
         </button>
       ))}
     </div>
