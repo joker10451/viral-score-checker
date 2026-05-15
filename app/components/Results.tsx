@@ -99,6 +99,31 @@ export default function Results({ result, onTryAgain, title }: ResultsProps) {
         </div>
       </div>
 
+      {/* AI Tips */}
+      {result.tips && result.tips.length > 0 && (
+        <div className="mt-6 bg-gradient-to-r from-purple-500/5 to-blue-500/5 p-6 rounded-2xl border border-purple-500/20">
+          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+            🧠 AI Tips
+            {result.aiPowered && (
+              <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">
+                Powered by AI
+              </span>
+            )}
+          </h2>
+          <div className="space-y-2">
+            {result.tips.map((tip, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-3 p-3 bg-[#0b0b12] rounded-lg border border-white/5"
+              >
+                <span className="text-purple-400 mt-0.5">💡</span>
+                <p className="text-sm text-gray-300">{tip}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Viral Benchmark Comparison */}
       <div className="mt-6 bg-[#141420] p-6 rounded-2xl border border-white/10">
         <h2 className="text-xl font-semibold mb-4">

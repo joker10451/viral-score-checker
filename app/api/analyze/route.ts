@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeContent, ScoringInput } from "@/lib/scoring";
+import { getAIAnalysis } from "@/lib/ai";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Rule-based scoring (always runs — instant)
     const result = analyzeContent({
       title: body.title || "",
       hook: body.hook || "",
@@ -19,7 +21,35 @@ export async function POST(request: NextRequest) {
       platform: body.platform || "youtube",
     });
 
-    return NextResponse.json(result);
+    // AI enhancement (runs if GROQ_API_KEY is set)
+    const aiResult = await getAIAnalysis(
+      body.title || "",
+      body.hook || "",
+      result.viralScore,
+      result.ctrScore,
+      result.retentionScore,
+      result.engagementScore
+    );
+
+    if (aiResult) {
+      // Merge AI results with rule-based scores
+      return NextResponse.json({
+        ...result,
+        explanation: aiResult.explanation || result.explanation,
+        improvements: {
+          titles: aiResult.titles.length > 0 ? aiResult.titles : result.improvements.titles,
+          hooks: aiResult.hooks.length > 0 ? aiResult.hooks : result.improvements.hooks,
+        },
+        tips: aiResult.tips,
+        aiPowered: true,
+      });
+    }
+
+    return NextResponse.json({
+      ...result,
+      tips: [],
+      aiPowered: false,
+    });
   } catch {
     return NextResponse.json(
       { error: "Invalid request body" },

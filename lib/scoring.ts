@@ -17,6 +17,8 @@ export interface ScoringResult {
     titles: string[];
     hooks: string[];
   };
+  tips?: string[];
+  aiPowered?: boolean;
 }
 
 function clamp(value: number, min: number, max: number): number {
